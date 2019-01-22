@@ -23,6 +23,7 @@ import (
 var (
 	success = color.New(color.FgGreen)
 	fail    = color.New(color.FgHiRed)
+	info    = color.New(color.FgHiCyan)
 )
 
 const paletteEnv = "GOTEST_PALETTE"
@@ -81,6 +82,8 @@ func parse(line string) {
 
 	switch {
 	case strings.HasPrefix(trimmed, "=== RUN"):
+		c = info
+	case c == info: // reset info
 		fallthrough
 	case strings.HasPrefix(trimmed, "?"):
 		c = nil
@@ -127,7 +130,7 @@ func setPalette() {
 		return
 	}
 	vals := strings.Split(v, ",")
-	if len(vals) != 2 {
+	if len(vals) < 2 || len(vals) > 3 {
 		return
 	}
 	if c, ok := colors[vals[0]]; ok {
@@ -135,6 +138,11 @@ func setPalette() {
 	}
 	if c, ok := colors[vals[1]]; ok {
 		success = color.New(c)
+	}
+	if len(vals) > 2 {
+		if c, ok := colors[vals[2]]; ok {
+			info = color.New(c)
+		}
 	}
 }
 
